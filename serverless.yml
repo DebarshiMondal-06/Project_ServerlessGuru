@@ -17,7 +17,19 @@ package:
     - '!node_modules/**'
     - '!package.json'
     - '!functions/**'
+    - '!layers/**'
 
+	
+layers:
+  nano:
+    package:
+      artifact: layers/nanoId.zip
+    name: ${opt:stage}-nanoID
+    compatibleRuntimes:
+      - nodejs16.x
+    compatibleArchitectures:
+      - x86_64
+      - arm64
 
 functions:
   createWatchFun:
@@ -28,6 +40,8 @@ functions:
     package:
       patterns:
         - 'functions/create_watch.js'
+    layers:
+      - !Ref NanoLambdaLayer
     events:
       - http:
           path: /create
