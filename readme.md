@@ -28,6 +28,20 @@ Deploy your resources,
   sls deploy --stage DEV
 ```
 
+Below showing CI/CD deployment for `DEV` stack.
+
+![Dev Stack CI/CD](./devStack.png)
+
+##### Also, you can deploy your resources in PROD enviroment via, 
+```
+  sls deploy --stage PROD
+```
+
+Below showing CI/CD deployment for `PROD` stack.
+
+![Dev Stack CI/CD](./prodStack.png)
+
+
 <br />
 
 ##### Follow these steps run to the Frontend (Reactjs).

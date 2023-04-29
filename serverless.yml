@@ -2,6 +2,7 @@ service: sls-watch-graphql-02
 
 frameworkVersion: '3'
 
+# define IAM roles per function... 
 plugins:
    - serverless-iam-roles-per-function
 
@@ -9,10 +10,12 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: us-west-2
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'DEV'} #to support multi-stage deployment Stack, default is DEV.
 
+
+# for more control over your function artifacts...
 package:
-  individually: true
+  individually: true #to package functions individually.
   patterns:
     - '!node_modules/**'
     - '!package.json'
@@ -20,11 +23,12 @@ package:
     - '!layers/**'
     - '!Frontend/**'
 
-	
-layers:
+
+# layers configuration...
+layers: 
   nano:
     package:
-      artifact: layers/nanoId.zip
+      artifact: layers/nanoId.zip #path to layer artificat.
     name: ${opt:stage}-nanoID
     compatibleRuntimes:
       - nodejs16.x
@@ -32,31 +36,32 @@ layers:
       - x86_64
       - arm64
 
+# Lambda functions configuration...
 functions:
-  createWatchFun:
-    name: CreateWatchFun-${opt:stage}
-    handler: functions/create_watch.create
+  createWatchFun: #create watch lambda function.
+    name: CreateWatchFun-${opt:stage} 
+    handler: functions/create_watch.create #path to handler, here `create_watch` is file name and `.create` is method
     environment:
-      WATCH_TABLE: !Ref watchTable
+      WATCH_TABLE: !Ref watchTable #!Ref returns the value of the dynamodb table name.
     package:
       patterns:
         - 'functions/create_watch.js'
     layers:
-      - !Ref NanoLambdaLayer
-    events:
+      - !Ref NanoLambdaLayer 
+    events: #api-gateway event...
       - http:
           path: /create
           method: POST
-          cors: true
-    iamRoleStatements:
+          cors: true 
+    iamRoleStatements: #giving granular access.
       - Effect: Allow        
         Action:
           - dynamodb:PutItem
         Resource: 
-          - { Fn::GetAtt: [watchTable, Arn] }
+          - { Fn::GetAtt: [watchTable, Arn] } #getting the arn for the resource watchTable.
 
 
-  getAllWatchFun:
+  getAllWatchFun: #get all watch lambda function.
     name: GetAllWatchFun-${opt:stage}
     handler: functions/getall_watch.get_all
     environment:
@@ -77,7 +82,7 @@ functions:
           - { Fn::GetAtt: [watchTable, Arn] }
     
 
-  updateWatchFun:
+  updateWatchFun: #update a watch lambda function.
     name: UpdateWatchFun-${opt:stage}
     handler: functions/update_watch.update
     environment:
@@ -99,7 +104,7 @@ functions:
           - { Fn::GetAtt: [watchTable, Arn] }
     
   
-  deleteWatchFun:
+  deleteWatchFun: #delete watch lambda function.
     name: DeleteWatchFun-${opt:stage}
     handler: functions/delete_watch.delete
     environment:
@@ -121,7 +126,7 @@ functions:
           - { Fn::GetAtt: [watchTable, Arn] }
     
 
-  categoryWatchFun:
+  categoryWatchFun: #get by watch category lambda function.
     name: CategoryWatchFun-${opt:stage}
     handler: functions/getby_category.watch_category
     environment:
@@ -139,19 +144,19 @@ functions:
         Action:
           - dynamodb:Query
         Resource: 
-          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/Watch_Table-${opt:stage}/index/*
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/Watch_Table-${opt:stage}/index/* 
           - { Fn::GetAtt: [watchTable, Arn] }
 
 
 
 
 resources:
-  Resources:
-    watchTable:
+  Resources: 
+    watchTable: #DynamoDB watch table configuration.
       Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: Watch_Table-${opt:stage}
-        BillingMode: PAY_PER_REQUEST  
+        BillingMode: PAY_PER_REQUEST  #for billing mode On Demand.
         AttributeDefinitions:
           - AttributeName: "watch_id"
             AttributeType: "N"
@@ -159,11 +164,11 @@ resources:
             AttributeType: "S" 
         KeySchema:
           - AttributeName: "watch_id"
-            KeyType: "HASH"
-        GlobalSecondaryIndexes:
+            KeyType: "HASH" #partion key
+        GlobalSecondaryIndexes: #configure GSI
           - IndexName: category-index
             KeySchema:
               - AttributeName: category
                 KeyType: HASH
             Projection:
-              ProjectionType: ALL
+              ProjectionType: ALL #return all attributes for this index.
