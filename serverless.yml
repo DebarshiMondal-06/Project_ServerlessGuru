@@ -138,7 +138,7 @@ functions:
         Action:
           - dynamodb:Query
         Resource: 
-          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable-${opt:stage}/index/*
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/Watch_Table-${opt:stage}/index/*
           - { Fn::GetAtt: [watchTable, Arn] }
 
 
