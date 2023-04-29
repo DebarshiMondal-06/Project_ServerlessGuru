@@ -1,0 +1,122 @@
+service: sls-watch-graphql-02
+
+frameworkVersion: '3'
+
+plugins:
+   - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-west-2
+  stage: ${opt:stage, 'dev'}
+
+package:
+  individually: true
+  patterns:
+    - '!node_modules/**'
+    - '!package.json'
+    - '!functions/**'
+
+
+functions:
+  createWatchFun:
+    name: CreateWatchFun-${opt:stage}
+    handler: functions/create_watch.create
+    environment:
+      WATCH_TABLE: !Ref watchTable
+    package:
+      patterns:
+        - 'functions/create_watch.js'
+    events:
+      - http:
+          path: /create
+          method: POST
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow        
+        Action:
+          - dynamodb:PutItem
+        Resource: 
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable-${opt:stage}
+          - { Fn::GetAtt: [watchTable, Arn] }
+
+  # readWatchFun:
+  #   name: ReadWatchFun
+  #   handler: functions/read_watch.index
+  #   package:
+  #     patterns:
+  #       - 'functions/read_watch.js'
+  #   events:
+  #     - http:
+  #         path: /get_all
+  #         method: GET
+  #         cors: true
+  #   iamRoleStatements:
+  #     - Effect: Allow
+  #       Action:
+  #         - dynamodb:Query
+  #       Resource: 
+  #         - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
+  #         - { Fn::GetAtt: [watchTable, Arn] }
+    
+
+  # updateWatchFun:
+  #   name: UpdateWatchFun
+  #   handler: functions/update_watch.index
+  #   package:
+  #     patterns:
+  #       - 'functions/update_watch.js'
+  #   events:
+  #     - http:
+  #         path: /update
+  #         method: PUT
+  #         cors: true
+  #   iamRoleStatements:
+  #     - Effect: Allow
+  #       Action:
+  #         - dynamodb:UpdateItem
+  #       Resource: 
+  #         - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
+  #         - { Fn::GetAtt: [watchTable, Arn] }
+    
+
+  
+  # deleteWatchFun:
+  #   name: DeleteWatchFun
+  #   handler: functions/delete_watch.index
+  #   package:
+  #     patterns:
+  #       - 'functions/delete_watch.js'
+  #   events:
+  #     - http:
+  #         path: /delete
+  #         method: DELETE
+  #         cors: true
+  #   iamRoleStatements:
+  #     - Effect: Allow
+  #       Action:
+  #         - dynamodb:UpdateItem
+  #       Resource: 
+  #         - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
+  #         - { Fn::GetAtt: [watchTable, Arn] }
+    
+
+
+resources:
+  Resources:
+    watchTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: WatchTable-${opt:stage}
+        BillingMode: PAY_PER_REQUEST  
+        AttributeDefinitions:
+          - AttributeName: "watch_id"
+            AttributeType: "N"
+          - AttributeName: "category"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "watch_id"
+            KeyType: "HASH"
+          - AttributeName: "category"
+            KeyType: "RANGE"
