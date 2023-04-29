@@ -52,7 +52,6 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: 
-          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable-${opt:stage}
           - { Fn::GetAtt: [watchTable, Arn] }
 
 
@@ -74,7 +73,6 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: 
-          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
           - { Fn::GetAtt: [watchTable, Arn] }
     
 
@@ -97,13 +95,11 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:GetItem
         Resource: 
-          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
           - { Fn::GetAtt: [watchTable, Arn] }
     
-
   
   deleteWatchFun:
-    name: DeleteWatchFun
+    name: DeleteWatchFun-${opt:stage}
     handler: functions/delete_watch.delete
     environment:
       WATCH_TABLE: !Ref watchTable
@@ -121,9 +117,31 @@ functions:
           - dynamodb:DeleteItem
           - dynamodb:GetItem
         Resource: 
-          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
           - { Fn::GetAtt: [watchTable, Arn] }
     
+
+  categoryWatchFun:
+    name: CategoryWatchFun-${opt:stage}
+    handler: functions/getby_category.watch_category
+    environment:
+      WATCH_TABLE: !Ref watchTable
+    package:
+      patterns:
+        - 'functions/getby_category.js'
+    events:
+      - http:
+          path: /watch_category
+          method: GET
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: 
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable-${opt:stage}/index/*
+          - { Fn::GetAtt: [watchTable, Arn] }
+
+
 
 
 resources:
