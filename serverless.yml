@@ -55,65 +55,74 @@ functions:
           - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable-${opt:stage}
           - { Fn::GetAtt: [watchTable, Arn] }
 
-  # readWatchFun:
-  #   name: ReadWatchFun
-  #   handler: functions/read_watch.index
-  #   package:
-  #     patterns:
-  #       - 'functions/read_watch.js'
-  #   events:
-  #     - http:
-  #         path: /get_all
-  #         method: GET
-  #         cors: true
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #       Resource: 
-  #         - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
-  #         - { Fn::GetAtt: [watchTable, Arn] }
+
+  getAllWatchFun:
+    name: GetAllWatchFun-${opt:stage}
+    handler: functions/getall_watch.get_all
+    environment:
+      WATCH_TABLE: !Ref watchTable
+    package:
+      patterns:
+        - 'functions/getall_watch.js'
+    events:
+      - http:
+          path: /get_all
+          method: GET
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: 
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
+          - { Fn::GetAtt: [watchTable, Arn] }
     
 
-  # updateWatchFun:
-  #   name: UpdateWatchFun
-  #   handler: functions/update_watch.index
-  #   package:
-  #     patterns:
-  #       - 'functions/update_watch.js'
-  #   events:
-  #     - http:
-  #         path: /update
-  #         method: PUT
-  #         cors: true
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:UpdateItem
-  #       Resource: 
-  #         - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
-  #         - { Fn::GetAtt: [watchTable, Arn] }
+  updateWatchFun:
+    name: UpdateWatchFun-${opt:stage}
+    handler: functions/update_watch.update
+    environment:
+      WATCH_TABLE: !Ref watchTable
+    package:
+      patterns:
+        - 'functions/update_watch.js'
+    events:
+      - http:
+          path: /update
+          method: PUT
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource: 
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
+          - { Fn::GetAtt: [watchTable, Arn] }
     
 
   
-  # deleteWatchFun:
-  #   name: DeleteWatchFun
-  #   handler: functions/delete_watch.index
-  #   package:
-  #     patterns:
-  #       - 'functions/delete_watch.js'
-  #   events:
-  #     - http:
-  #         path: /delete
-  #         method: DELETE
-  #         cors: true
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:UpdateItem
-  #       Resource: 
-  #         - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
-  #         - { Fn::GetAtt: [watchTable, Arn] }
+  deleteWatchFun:
+    name: DeleteWatchFun
+    handler: functions/delete_watch.delete
+    environment:
+      WATCH_TABLE: !Ref watchTable
+    package:
+      patterns:
+        - 'functions/delete_watch.js'
+    events:
+      - http:
+          path: /delete
+          method: DELETE
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:GetItem
+        Resource: 
+          - !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/WatchTable
+          - { Fn::GetAtt: [watchTable, Arn] }
     
 
 
@@ -122,15 +131,11 @@ resources:
     watchTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
-        TableName: WatchTable-${opt:stage}
+        TableName: Watch_Table-${opt:stage}
         BillingMode: PAY_PER_REQUEST  
         AttributeDefinitions:
           - AttributeName: "watch_id"
             AttributeType: "N"
-          - AttributeName: "category"
-            AttributeType: "S"
         KeySchema:
           - AttributeName: "watch_id"
             KeyType: "HASH"
-          - AttributeName: "category"
-            KeyType: "RANGE"
