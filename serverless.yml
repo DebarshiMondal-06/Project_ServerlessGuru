@@ -18,6 +18,7 @@ package:
     - '!package.json'
     - '!functions/**'
     - '!layers/**'
+    - '!Frontend/**'
 
 	
 layers:
