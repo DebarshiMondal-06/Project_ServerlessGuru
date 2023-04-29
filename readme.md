@@ -30,7 +30,7 @@ Deploy your resources,
 
 Below showing CI/CD deployment for `DEV` stack.
 
-![Dev Stack CI/CD](./devStack.png)
+![Dev Stack CI/CD](./screenshots/devStack.png)
 
 ##### Also, you can deploy your resources in PROD enviroment via, 
 ```
@@ -39,7 +39,7 @@ Below showing CI/CD deployment for `DEV` stack.
 
 Below showing CI/CD deployment for `PROD` stack.
 
-![Dev Stack CI/CD](./prodStack.png)
+![Dev Stack CI/CD](./screenshots/prodStack.png)
 
 
 <br />
