@@ -1,0 +1,36 @@
+name: watch-serverless-guru-task
+
+on:
+  push:
+    branches:
+      - master
+      - prod 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Installing Serverless Framework...
+        run: yarn global add serverless 
+
+      - name: Installing all Dependencies...
+        run: yarn install
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY}}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy to AWS Dev Stack...
+        if: endsWith(github.ref, '/master')
+        run: sls deploy --stage DEV
+      
+      - name: Deploy to AWS Prod Stack...
+        if: endsWith(github.ref, '/prod')
+        run: sls deploy --stage PROD
