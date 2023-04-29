@@ -11,7 +11,7 @@ const ContextGlobal = ({ children }) => {
   const [loader, setLoader] = useState(false);
 
   // replace with your endpoint......
-  let api_url = "https://2jgxxs93gb.execute-api.us-west-2.amazonaws.com/DEV";
+  let api_url = "https://zfhjyoalie.execute-api.us-west-2.amazonaws.com/DEV";
   
   const get_all_watches = async () => {
     try {

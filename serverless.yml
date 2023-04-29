@@ -1,4 +1,4 @@
-service: sls-watch-graphql-02
+service: sls-watch-curd-app
 
 frameworkVersion: '3'
 
@@ -21,6 +21,7 @@ package:
     - '!package.json'
     - '!functions/**'
     - '!layers/**'
+    - '!screenshots/**'
     - '!Frontend/**'
 
 
