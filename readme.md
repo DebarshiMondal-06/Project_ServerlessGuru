@@ -15,19 +15,26 @@ If you haven't install serverless framework make sure to install it.
   npm install -g serverless
 ```
 
-
 #### Step3:
 Install the serverless framework plugins,
 ```
   npm install
 ```
+
+#### Step4:
+Deploy your resources, 
+<b>Note: you can change the `stage` value with DEV or PROD. </b>
+```
+  sls deploy --stage DEV
+```
+
 <br />
 
 ##### Follow these steps run to the Frontend (Reactjs).
 #### Step1:
 Navigate to Frontend Folder and Install all the packages,
 ```
- cd Frontend & npm install
+ cd Frontend & yarn install
 ```
 
 #### Step2:
@@ -36,7 +43,7 @@ Navigate to Frontend Folder and Install all the packages,
 #### Step3:
 Run to Start the application on your local.
   ```
-    npm run start
+    yarn start
   ```
 
 <br/>
