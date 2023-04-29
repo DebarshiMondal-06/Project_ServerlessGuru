@@ -17,7 +17,7 @@ const sendResponse = (code, data, message) => {
 
 exports.watch_category = async (event) => {
   try {
-    const { watch_category } = JSON.parse(event.body);
+    const { watch_category } = event.queryStringParameters || {};
     if (!watch_category)
       return sendResponse(400, null, "one of the following paramters not received for update!");
 
@@ -26,7 +26,7 @@ exports.watch_category = async (event) => {
       IndexName: 'category-index',
       KeyConditionExpression: 'category=:category',
       ExpressionAttributeValues: {
-        ':category': category,
+        ':category': watch_category,
       }
     };
     const get_result = await DDB.query(get_by_category_params).promise();
