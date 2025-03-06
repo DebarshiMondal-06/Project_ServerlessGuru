@@ -1,4 +1,4 @@
-service: sls-watch-curd-app
+service: sls-watch-crud-app
 
 frameworkVersion: '3'
 
